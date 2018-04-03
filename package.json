@@ -1,0 +1,62 @@
+{
+  "name": "3dit-electron-react-app",
+  "version": "0.1.0",
+  "description": "3DIT-Electron React APP",
+  "main": "app.js",
+  "author": "3dit",
+  "repository": "git@github.com:sandeep-blackturtle/electron-app.git",
+  "license": "WTFPL",
+  "scripts": {
+    "bundle": "webpack --mode development",
+    "serve": "electron .",
+    "start": "npm-run-all --parallel bundle serve",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "release": "electron-builder -p always"
+  },
+  "build": {
+    "appId": "com.3dit.electron.react",
+    "productName": "3DIT Electron App",
+    "publish": [{
+      "provider": "github",
+      "owner": "sandeep-blackturtle",
+      "repo": "electron-app"
+    }],
+    "mac": {
+      "category": "com.3dit.electron.react",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false
+    }
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "css-loader": "^0.28.10",
+    "electron": "^1.8.2",
+    "electron-builder": "^20.8.1",
+    "electron-reload": "^1.2.2",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^1.1.10",
+    "node-sass": "^4.8.3",
+    "npm-run-all": "^4.1.2",
+    "sass-loader": "^6.0.7",
+    "style-loader": "^0.20.3",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "electron-log": "^2.2.14",
+    "electron-updater": "^2.21.4",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}

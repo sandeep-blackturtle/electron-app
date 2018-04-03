@@ -1,0 +1,45 @@
+@import "mixins";
+
+$white: #fff;
+$green: #80f9b7;
+$blue: #9abdeb;
+$pink: #fa7fc3;
+$grey: #ECF0F1;
+$shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
+$font-size: 22px;
+$font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: $font-family;
+    background: $grey;
+}
+
+.image-container {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    background: $blue;
+
+    @include clearFix;
+
+    .image {
+        float: left;
+        width: 23%;
+        //margin-right: 2%;
+        margin-bottom: 2%;
+        background: $white;
+        padding: 5px;
+
+        img {
+            width: 100%;
+        }
+    }
+}
