@@ -5,6 +5,7 @@ $green: #80f9b7;
 $blue: #9abdeb;
 $pink: #fa7fc3;
 $grey: #ECF0F1;
+$transparent: #6b6464e3;
 $shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
 $font-size: 22px;
 $font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -41,5 +42,19 @@ body {
         img {
             width: 100%;
         }
+    }
+}
+
+.model {
+    background: $transparent;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+
+    .model-container {
+        background: $white;
+        padding: 10px;
     }
 }
