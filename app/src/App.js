@@ -29,7 +29,6 @@ class App extends Component {
     render() {
         return (
             <div>
-                <h1>Images</h1>
                 <ImageContainer data={this.state.data}/>
             </div>
         )

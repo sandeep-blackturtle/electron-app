@@ -5,7 +5,7 @@ const electron = require('electron');
 const {autoUpdater} = require('electron-updater');
 const log = require('electron-log');
 
-require('electron-reload')(__dirname);
+//require('electron-reload')(__dirname);
 
 // configure logging
 autoUpdater.logger = log;
