@@ -5,7 +5,7 @@ const electron = require('electron');
 const {autoUpdater} = require('electron-updater');
 const log = require('electron-log');
 
-//require('electron-reload')(__dirname);
+require('electron-reload')(__dirname);
 
 // configure logging
 autoUpdater.logger = log;
@@ -13,7 +13,7 @@ autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
 // Module to control application life and create native browser window.
-const { app, BrowserWindow } = electron;
+const { app, BrowserWindow, ipcMain} = electron;
 
 // avoide being garbage collected
 let mainWindow;
