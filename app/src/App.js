@@ -25,17 +25,16 @@ class App extends Component {
     componentDidMount() {
 
         axios.get(URL.url).then(res => {
-            this.setState({
-                data: res.data
-            });
+            this.setState({ data: res.data })
+        })
+
+        ipcRenderer.on('message', function(event, text) {
+            this.setState({ update: text })
         })
     }
 
     autoUpdate() {
-
-        ipcRenderer.on('message', function(event, text) {
-            return <h1>LOGS::: {text}</h1>
-        })
+        return <h1>Message:: {this.state.update}</h1>
     }
 
     render() {
@@ -47,7 +46,7 @@ class App extends Component {
                     <Input type={'password'} lable={'Password'} name={'password'}/>
                     <Input type={'submit'} className="submit" value={'Submit'}/>
                 </Model> */}
-                {this.autoUpdate()}
+                { this.autoUpdate() }
             </div>
         )
     }
