@@ -13,12 +13,11 @@ import Button from './components/Button/'
 import {url, username, password} from './config/'
 import {
     MESSAGE, 
-    HANDLE_UPDATE, 
-    ON_SUBMIT, 
     UPDATE_AVAILABLE, 
+    CHECKING_FOR_UPDATE,
     UPDATE_NOT_AVAILABLE, 
-    DOWNLOAD_UPDATE_ACCEPTED, 
     DOWNLOAD_UPDATE_DENIED, 
+    DOWNLOAD_UPDATE_ACCEPTED, 
 } from "./utils/constants";
 
 class App extends Component {
@@ -38,29 +37,30 @@ class App extends Component {
         });
 
         ipcRenderer.on(MESSAGE, this.showMessage)
-        ipcRenderer.on(HANDLE_UPDATE, this.handleAutoUpdate)
         ipcRenderer.on(UPDATE_AVAILABLE, this.handleUpdateAvailable)
+        ipcRenderer.on(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
     }
 
     componentWillUnmount() {
         ipcRenderer.removeListener(MESSAGE, this.showMessage)
         ipcRenderer.removeListener(UPDATE_AVAILABLE, this.handleUpdateAvailable)
-        ipcRenderer.removeListener(HANDLE_UPDATE, this.handleAutoUpdate)
+        ipcRenderer.removeListener(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
     }
 
     showMessage = (event, data) => {
         console.log('Message:::', data)
     }
 
-    handleUpdateAvailable = () => {
-        console.log('Update Available.......')
+    handleCheckingForUpdate = (event, data) => {
+        console.log(data)
     }
 
-    handleAutoUpdate = (event, data) => {
-        console.log('LOG:::', data)
+    handleUpdateAvailable = (event, data) => {
+        console.log(data)
     }
 
-    handleSubmit = () => {
+    handleAcceptUpdateDownload = (event, data) => {
+        console.log('Download update accepted::')
         ipcRenderer.send(DOWNLOAD_UPDATE_ACCEPTED, 'Accepted......')
     }
 
@@ -71,7 +71,7 @@ class App extends Component {
                 <Model>
                     <Input type={'text'} lable={'Username'} name={'username'}/>
                     <Input type={'password'} lable={'Password'} name={'password'}/>
-                    <Button className="submit" value={'Submit'} onClick={this.handleSubmit}/>
+                    <Button className="submit" value={'Submit'} onClick={this.handleAcceptUpdateDownload}/>
                 </Model>
             </div>
         )
