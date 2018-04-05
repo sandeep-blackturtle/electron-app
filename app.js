@@ -6,14 +6,15 @@ const electron = require('electron');
 const { autoUpdater } = require('electron-updater');
 
 const {
+    ERROR, 
     MESSAGE, 
-    ERROR_ON_UPDATE, 
+    UPDATE_CHECK, 
     UPDATE_AVAILABLE, 
-    CHECKING_FOR_UPDATE, 
     UPDATE_NOT_AVAILABLE, 
-    DOWNLOAD_UPDATE_DENIED, 
-    DOWNLOAD_UPDATE_ACCEPTED, 
+    INSTALL_UPDATE_DENIED, 
+    INSTALL_UPDATE_ACCEPTED, 
     UPDATE_DOWNLOAD_PROGRESS, 
+    UPDATE_DOWNLOAD_COMPLETE, 
 } = require('./app/src/utils/constants')
 
 // live reload for development
@@ -83,41 +84,34 @@ const sendStatusToWindow = (data) => {
     }
 };
 
-autoUpdater.on('checking-for-update', () => {
-    mainWindow.send(CHECKING_FOR_UPDATE, 'Checking for update.');
+autoUpdater.on(UPDATE_CHECK, () => {
+    sendStatusToWindow('Checking for update.');
 });
 
-autoUpdater.on('update-available', info => {
-    mainWindow.send(UPDATE_AVAILABLE, 'Update available.');
+autoUpdater.on(UPDATE_AVAILABLE, info => {
+    sendStatusToWindow('App update available.');
 });
 
-autoUpdater.on('update-not-available', info => {
-    mainWindow.send(UPDATE_NOT_AVAILABLE, 'Update not available.');
+autoUpdater.on(UPDATE_NOT_AVAILABLE, info => {
+    sendStatusToWindow('App is uptodate.');
 });
 
-autoUpdater.on('error', err => {
-    mainWindow.send(ERROR_ON_UPDATE, err);
+autoUpdater.on(ERROR, err => {
+    sendStatusToWindow('Error', `${err.toString()}`);
 });
 
-ipcMain.on(DOWNLOAD_UPDATE_ACCEPTED, (event, data ) => {
-    //console.log('Update download accepted....');
-
-    autoUpdater.on('download-progress', progressObj => {
-        // sendStatusToWindow(
-        //     `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred} + '/' + ${progressObj.total} + )`
-        // );
-        mainWindow.send(UPDATE_DOWNLOAD_PROGRESS, progressObj)
-    });
-    
-    autoUpdater.on('update-downloaded', info => {
-        sendStatusToWindow('Update downloaded; will install now');
-    });
-    
-    autoUpdater.on('update-downloaded', info => {
-        autoUpdater.quitAndInstall();
-    });
+autoUpdater.on(UPDATE_DOWNLOAD_PROGRESS, progressObj => {
+    sendStatusToWindow(`Downloaded: ${Math.round(progressObj.percent)}%`);
 });
 
-ipcMain.on(DOWNLOAD_UPDATE_DENIED, (event, data ) => {
-    console.log('Updates downloa denied....');
+autoUpdater.on(UPDATE_DOWNLOAD_COMPLETE, info => {
+    mainWindow.send(UPDATE_DOWNLOAD_COMPLETE, info);
+});
+
+ipcMain.on(INSTALL_UPDATE_ACCEPTED, (event, data) => {
+    autoUpdater.quitAndInstall();
+});
+
+ipcMain.on(INSTALL_UPDATE_DENIED, (event, data ) => {
+    console.log('Update download denied....');
 });

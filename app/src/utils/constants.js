@@ -1,17 +1,13 @@
 module.exports = {
+    ERROR: 'error',
     MESSAGE: 'message',
-    HANDLE_UPDATE: 'handle-update',
-    ON_SUBMIT: 'on-submit',
 
-    CHECKING_FOR_UPDATE: 'checking-for-update',
-
+    UPDATE_CHECK: 'checking-for-update',
     UPDATE_AVAILABLE: 'update-available',
-    UPDATE_DOWNLOADED: 'update-downloaded',
     UPDATE_NOT_AVAILABLE: 'update-not-available',
-    UPDATE_DOWNLOAD_PROGRESS: 'update-download-progress',
+    UPDATE_DOWNLOAD_COMPLETE: 'update-downloaded',
+    UPDATE_DOWNLOAD_PROGRESS: 'download-progress',
 
-    ERROR_ON_UPDATE: 'error-on-update',
-
-    DOWNLOAD_UPDATE_ACCEPTED: 'download-update-accecpted',
-    DOWNLOAD_UPDATE_DENIED: 'download-update-denied',
+    INSTALL_UPDATE_ACCEPTED: 'download-update-accecpted',
+    INSTALL_UPDATE_DENIED: 'download-update-denied',
 }

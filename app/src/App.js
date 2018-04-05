@@ -13,14 +13,12 @@ import ImageContainer from './components/ImageContainer/'
 import {url, username, password} from './config/'
 // Constants
 import {
+    ERROR, 
     MESSAGE, 
-    UPDATE_AVAILABLE, 
-    CHECKING_FOR_UPDATE,
-    UPDATE_NOT_AVAILABLE, 
-    DOWNLOAD_UPDATE_DENIED, 
-    DOWNLOAD_UPDATE_ACCEPTED, 
-    UPDATE_DOWNLOAD_PROGRESS, 
-} from "./utils/constants";
+    INSTALL_UPDATE_DENIED, 
+    INSTALL_UPDATE_ACCEPTED, 
+    UPDATE_DOWNLOAD_COMPLETE, 
+} from "./utils/constants"; 
 
 class App extends Component {
 
@@ -39,43 +37,25 @@ class App extends Component {
         });
 
         ipcRenderer.on(MESSAGE, this.showMessage)
-        ipcRenderer.on(UPDATE_AVAILABLE, this.handleUpdateAvailable)
-        ipcRenderer.on(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
-        ipcRenderer.on(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
-        ipcRenderer.on(UPDATE_DOWNLOAD_PROGRESS, this.handleUpdateDownloadProgress)
+        ipcRenderer.on(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded)
     }
 
     componentWillUnmount() {
         ipcRenderer.removeListener(MESSAGE, this.showMessage)
-        ipcRenderer.removeListener(UPDATE_AVAILABLE, this.handleUpdateAvailable)
-        ipcRenderer.removeListener(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
-        ipcRenderer.removeListener(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
-        ipcRenderer.removeListener(UPDATE_DOWNLOAD_PROGRESS, this.handleUpdateDownloadProgress)
+        ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded)
     }
 
     showMessage = (event, data) => {
-        console.log('Message:::', data)
+        console.log('Message:', data)
     }
 
-    handleCheckingForUpdate = (event, data) => {
-        console.log('CHECK::', data)
+    handleUpdateDownloaded = (event, data) => {
+        console.log( `Downloaded complete: ${data}`)
     }
 
-    handleUpdateAvailable = (event, data) => {
-        console.log('UPA::', data)
-    }
-
-    handleUpdateNotAvailable = (event, data) => {
-        console.log('UPNA::', data)
-    }
-
-    handleAcceptUpdateDownload = () => {
-        console.log('Accepted::')
-        ipcRenderer.send(DOWNLOAD_UPDATE_ACCEPTED, 'Accepted......')
-    }
-
-    handleUpdateDownloadProgress = (event, data) => {
-        console.log( `Downloaded ${Math.round(data.percent)}%`)
+    handleAcceptUpdateInstall = () => {
+        console.log('Accepted:')
+        ipcRenderer.send(INSTALL_UPDATE_ACCEPTED, 'Accepted......')
     }
 
     render() {
@@ -85,7 +65,7 @@ class App extends Component {
                 <Model>
                     <Input type={'text'} lable={'Username'} name={'username'}/>
                     <Input type={'password'} lable={'Password'} name={'password'}/>
-                    <Button className="submit" value={'Submit'} onClick={this.handleAcceptUpdateDownload}/>
+                    <Button className="submit" value={'Submit'} onClick={this.handleAcceptUpdateInstall}/>
                 </Model>
             </div>
         )
