@@ -13,6 +13,7 @@ const {
     UPDATE_NOT_AVAILABLE, 
     DOWNLOAD_UPDATE_DENIED, 
     DOWNLOAD_UPDATE_ACCEPTED, 
+    UPDATE_DOWNLOAD_PROGRESS, 
 } = require('./app/src/utils/constants')
 
 // live reload for development
@@ -95,17 +96,17 @@ autoUpdater.on('update-not-available', info => {
 });
 
 autoUpdater.on('error', err => {
-    //sendStatusToWindow(`Error in auto-updater: ${err.toString()}`);
-    mainWindow.send(ERROR_ON_UPDATE, 'Error in auto-updater.');
+    mainWindow.send(ERROR_ON_UPDATE, err);
 });
 
 ipcMain.on(DOWNLOAD_UPDATE_ACCEPTED, (event, data ) => {
     //console.log('Update download accepted....');
 
     autoUpdater.on('download-progress', progressObj => {
-        sendStatusToWindow(
-            `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred} + '/' + ${progressObj.total} + )`
-        );
+        // sendStatusToWindow(
+        //     `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred} + '/' + ${progressObj.total} + )`
+        // );
+        mainWindow.send(UPDATE_DOWNLOAD_PROGRESS, progressObj)
     });
     
     autoUpdater.on('update-downloaded', info => {

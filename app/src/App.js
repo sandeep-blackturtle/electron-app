@@ -1,16 +1,17 @@
-//modules
-const { ipcRenderer } = require('electron');
-import React, {Component} from 'react'
-import {render} from 'react-dom'
+// NPM Modules
 import axios from 'axios'
-//components 
+import React, { Component } from 'react'
+import { render } from 'react-dom'
+const { ipcRenderer } = require('electron');
+// Components 
 import Image from './components/Image/'
-import ImageContainer from './components/ImageContainer/'
 import Model from './components/Model/'
 import Input from './components/Input/'
 import Button from './components/Button/'
-//configuration 
+import ImageContainer from './components/ImageContainer/'
+// Configuration 
 import {url, username, password} from './config/'
+// Constants
 import {
     MESSAGE, 
     UPDATE_AVAILABLE, 
@@ -18,6 +19,7 @@ import {
     UPDATE_NOT_AVAILABLE, 
     DOWNLOAD_UPDATE_DENIED, 
     DOWNLOAD_UPDATE_ACCEPTED, 
+    UPDATE_DOWNLOAD_PROGRESS, 
 } from "./utils/constants";
 
 class App extends Component {
@@ -38,15 +40,17 @@ class App extends Component {
 
         ipcRenderer.on(MESSAGE, this.showMessage)
         ipcRenderer.on(UPDATE_AVAILABLE, this.handleUpdateAvailable)
-        ipcRenderer.on(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
         ipcRenderer.on(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
+        ipcRenderer.on(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
+        ipcRenderer.on(UPDATE_DOWNLOAD_PROGRESS, this.handleUpdateDownloadProgress)
     }
 
     componentWillUnmount() {
         ipcRenderer.removeListener(MESSAGE, this.showMessage)
         ipcRenderer.removeListener(UPDATE_AVAILABLE, this.handleUpdateAvailable)
-        ipcRenderer.removeListener(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
         ipcRenderer.removeListener(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
+        ipcRenderer.removeListener(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
+        ipcRenderer.removeListener(UPDATE_DOWNLOAD_PROGRESS, this.handleUpdateDownloadProgress)
     }
 
     showMessage = (event, data) => {
@@ -68,6 +72,10 @@ class App extends Component {
     handleAcceptUpdateDownload = () => {
         console.log('Accepted::')
         ipcRenderer.send(DOWNLOAD_UPDATE_ACCEPTED, 'Accepted......')
+    }
+
+    handleUpdateDownloadProgress = (event, data) => {
+        console.log( `Downloaded ${Math.round(data.percent)}%`)
     }
 
     render() {

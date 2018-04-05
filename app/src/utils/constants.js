@@ -6,9 +6,9 @@ module.exports = {
     CHECKING_FOR_UPDATE: 'checking-for-update',
 
     UPDATE_AVAILABLE: 'update-available',
+    UPDATE_DOWNLOADED: 'update-downloaded',
     UPDATE_NOT_AVAILABLE: 'update-not-available',
     UPDATE_DOWNLOAD_PROGRESS: 'update-download-progress',
-    UPDATE_DOWNLOADED: 'update-downloaded',
 
     ERROR_ON_UPDATE: 'error-on-update',
 
