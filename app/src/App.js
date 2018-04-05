@@ -38,12 +38,14 @@ class App extends Component {
 
         ipcRenderer.on(MESSAGE, this.showMessage)
         ipcRenderer.on(UPDATE_AVAILABLE, this.handleUpdateAvailable)
+        ipcRenderer.on(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
         ipcRenderer.on(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
     }
 
     componentWillUnmount() {
         ipcRenderer.removeListener(MESSAGE, this.showMessage)
         ipcRenderer.removeListener(UPDATE_AVAILABLE, this.handleUpdateAvailable)
+        ipcRenderer.removeListener(UPDATE_NOT_AVAILABLE, this.handleUpdateNotAvailable)
         ipcRenderer.removeListener(CHECKING_FOR_UPDATE, this.handleCheckingForUpdate)
     }
 
@@ -52,15 +54,18 @@ class App extends Component {
     }
 
     handleCheckingForUpdate = (event, data) => {
-        console.log(data)
+        console.log('CHECK::', data)
     }
 
     handleUpdateAvailable = (event, data) => {
-        console.log(data)
+        console.log('UPA::', data)
+    }
+
+    handleUpdateNotAvailable = (event, data) => {
+        console.log('UPNA::', data)
     }
 
     handleAcceptUpdateDownload = (event, data) => {
-        console.log('Download update accepted::')
         ipcRenderer.send(DOWNLOAD_UPDATE_ACCEPTED, 'Accepted......')
     }
 
