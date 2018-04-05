@@ -15,8 +15,10 @@ import {
     MESSAGE, 
     HANDLE_UPDATE, 
     ON_SUBMIT, 
-    DOWNLOAD_UPDATES_ACCEPTED, 
-    DOWNLOAD_UPDATES_DENIED,
+    UPDATE_AVAILABLE, 
+    UPDATE_NOT_AVAILABLE, 
+    DOWNLOAD_UPDATE_ACCEPTED, 
+    DOWNLOAD_UPDATE_DENIED, 
 } from "./utils/constants";
 
 class App extends Component {
@@ -28,10 +30,6 @@ class App extends Component {
             data: [],
             update: ''
         };
-        
-        this.showMessage = this.showMessage.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleAutoUpdate = this.handleAutoUpdate.bind(this);
     }
 
     componentDidMount() {
@@ -39,25 +37,31 @@ class App extends Component {
             this.setState({ data: res.data })
         });
 
-        ipcRenderer.on(HANDLE_UPDATE, this.handleAutoUpdate);
-        ipcRenderer.on(MESSAGE, this.showMessage);
+        ipcRenderer.on(MESSAGE, this.showMessage)
+        ipcRenderer.on(HANDLE_UPDATE, this.handleAutoUpdate)
+        ipcRenderer.on(UPDATE_AVAILABLE, this.handleUpdateAvailable)
     }
 
     componentWillUnmount() {
-        ipcRenderer.removeListener(MESSAGE, this.showMessage);
-        ipcRenderer.removeListener(HANDLE_UPDATE, this.handleAutoUpdate);
+        ipcRenderer.removeListener(MESSAGE, this.showMessage)
+        ipcRenderer.removeListener(UPDATE_AVAILABLE, this.handleUpdateAvailable)
+        ipcRenderer.removeListener(HANDLE_UPDATE, this.handleAutoUpdate)
     }
 
-    showMessage(event, data) {
-        console.log('Message:::', data);
+    showMessage = (event, data) => {
+        console.log('Message:::', data)
     }
 
-    handleAutoUpdate(event, data) {
-        console.log('LOG:::', data);
+    handleUpdateAvailable = () => {
+        console.log('Update Available.......')
     }
 
-    handleSubmit() {
-        ipcRenderer.send(ON_SUBMIT, 'Submiting......')
+    handleAutoUpdate = (event, data) => {
+        console.log('LOG:::', data)
+    }
+
+    handleSubmit = () => {
+        ipcRenderer.send(DOWNLOAD_UPDATE_ACCEPTED, 'Accepted......')
     }
 
     render() {
