@@ -8,6 +8,6 @@ module.exports = {
     UPDATE_DOWNLOAD_COMPLETE: 'update-downloaded',
     UPDATE_DOWNLOAD_PROGRESS: 'download-progress',
 
-    INSTALL_UPDATE_ACCEPTED: 'download-update-accecpted',
-    INSTALL_UPDATE_DENIED: 'download-update-denied',
+    APP_UPDATE_INSTALL: 'app-update-install',
+    APP_UPDATE_PERMISSION: 'app-update-permission',
 }

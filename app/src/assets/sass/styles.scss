@@ -3,10 +3,14 @@
 $white: #fff;
 $green: #43A047;
 $darkGreen: #388E3C;
-$blue: #1E88E5;
+$blue: #1976D2;
+$darkBlue: #0D47A1;
+$red: #d32f2f;
+$darkRed: #b71c1c;
 $grey: #9E9E9E;
 $lightGray: #BDBDBD;
 $darkGray: #757575;
+$blueGray: #37474F;
 $transparent: #9e9e9e;
 $shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
 $font-size: 22px;
@@ -109,10 +113,10 @@ body {
     }
 }
 
-.button {
+.submit-button {
     padding: 2px 10px;
     
-    .submit {
+    button {
         width: 100%;
         padding: 10px;
         margin: 8px 0;
@@ -123,9 +127,59 @@ body {
         cursor: pointer;
     }
     
-    .submit:hover {
+    button:hover {
         background-color: $darkGreen;
     }
+}
+
+.update-button {
+    float: right;
+    padding: 0px 2px;
+
+    button {
+        width: 100%;
+        height: 35px;
+        padding: 10px;
+        background-color: $darkBlue;
+        color: $white;
+        border: none;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: $blue;
+    }
+}
+
+.cancel-button {
+    float: right;
+    padding: 0px 2px;
+
+    button {
+        width: 100%;
+        height: 35px;
+        padding: 10px;
+        background-color: $darkRed;
+        color: $white;
+        border: none;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: $red;
+    }
+}
+
+.alert {
+    background: $blueGray;
+    color: $white;
+    text-align: center;
+    font-size: 14px;
+    height: 35px;
+    line-height: 35px;
+    padding: 0px 15px;
+    position: relative;
+    z-index: 9999;
 }
 
 .spinner {

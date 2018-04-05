@@ -11,8 +11,7 @@ const {
     UPDATE_CHECK, 
     UPDATE_AVAILABLE, 
     UPDATE_NOT_AVAILABLE, 
-    INSTALL_UPDATE_DENIED, 
-    INSTALL_UPDATE_ACCEPTED, 
+    APP_UPDATE_PERMISSION, 
     UPDATE_DOWNLOAD_PROGRESS, 
     UPDATE_DOWNLOAD_COMPLETE, 
 } = require('./app/src/utils/constants')
@@ -108,10 +107,9 @@ autoUpdater.on(UPDATE_DOWNLOAD_COMPLETE, info => {
     mainWindow.send(UPDATE_DOWNLOAD_COMPLETE, info);
 });
 
-ipcMain.on(INSTALL_UPDATE_ACCEPTED, (event, data) => {
-    autoUpdater.quitAndInstall();
-});
+ipcMain.on(APP_UPDATE_PERMISSION, (event, data) => {
 
-ipcMain.on(INSTALL_UPDATE_DENIED, (event, data ) => {
-    console.log('Update download denied....');
+    if(data) {
+        autoUpdater.quitAndInstall();
+    }
 });
