@@ -91,7 +91,7 @@ const sendStatusToWindow = (data) => {
 
 autoUpdater.on('checking-for-update', () => {
     //sendStatusToWindow('Checking for update...');
-    mainWindow.send(CHECKING_FOR_UPDATE, 'Checking for update...');
+    mainWindow.send(CHECKING_FOR_UPDATE, 'Checking for update.');
 });
 
 autoUpdater.on('update-available', info => {
@@ -110,6 +110,8 @@ autoUpdater.on('error', err => {
 });
 
 ipcMain.on(DOWNLOAD_UPDATE_ACCEPTED, (event, data ) => {
+    //console.log('Update download accepted....');
+
     autoUpdater.on('download-progress', progressObj => {
         sendStatusToWindow(
             `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred} + '/' + ${progressObj.total} + )`

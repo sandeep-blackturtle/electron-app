@@ -54,18 +54,22 @@ class App extends Component {
     }
 
     handleCheckingForUpdate = (event, data) => {
+        console.log('CHECK::')
         console.log('CHECK::', data)
     }
 
     handleUpdateAvailable = (event, data) => {
+        console.log('UPA::')
         console.log('UPA::', data)
     }
 
     handleUpdateNotAvailable = (event, data) => {
+        console.log('UPNA::')
         console.log('UPNA::', data)
     }
 
-    handleAcceptUpdateDownload = (event, data) => {
+    handleAcceptUpdateDownload = () => {
+        console.log('Accepted::')
         ipcRenderer.send(DOWNLOAD_UPDATE_ACCEPTED, 'Accepted......')
     }
 
