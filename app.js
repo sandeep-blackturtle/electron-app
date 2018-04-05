@@ -90,17 +90,14 @@ const sendStatusToWindow = (data) => {
 };
 
 autoUpdater.on('checking-for-update', () => {
-    //sendStatusToWindow('Checking for update...');
     mainWindow.send(CHECKING_FOR_UPDATE, 'Checking for update.');
 });
 
 autoUpdater.on('update-available', info => {
-    //sendStatusToWindow('Update available.');
     mainWindow.send(UPDATE_AVAILABLE, 'Update available.');
 });
 
 autoUpdater.on('update-not-available', info => {
-    //sendStatusToWindow('Update not available.');
     mainWindow.send(UPDATE_NOT_AVAILABLE, 'Update not available.');
 });
 
