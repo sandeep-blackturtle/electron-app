@@ -7,14 +7,12 @@ const { autoUpdater } = require('electron-updater');
 
 const {
     MESSAGE, 
-    HANDLE_UPDATE, 
-    ON_SUBMIT, 
-    CHECKING_FOR_UPDATE, 
-    UPDATE_AVAILABLE, 
-    UPDATE_NOT_AVAILABLE, 
-    DOWNLOAD_UPDATE_ACCEPTED, 
-    DOWNLOAD_UPDATE_DENIED, 
     ERROR_ON_UPDATE, 
+    UPDATE_AVAILABLE, 
+    CHECKING_FOR_UPDATE, 
+    UPDATE_NOT_AVAILABLE, 
+    DOWNLOAD_UPDATE_DENIED, 
+    DOWNLOAD_UPDATE_ACCEPTED, 
 } = require('./app/src/utils/constants')
 
 // live reload for development
@@ -69,16 +67,11 @@ app.on('window-all-closed', function() {
     }
 });
 
+// Activate from forground
 app.on('activate', function() {
     if (mainWindow === null) {
         createWindow();
     }
-});
-
-ipcMain.on(ON_SUBMIT, (event, data) => {
-    console.log('log data::', data);
-
-    mainWindow.send(HANDLE_UPDATE, 'Testing.....');
 });
 
 // Auto updates
