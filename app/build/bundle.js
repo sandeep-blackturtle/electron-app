@@ -198,7 +198,7 @@ eval("\n\nvar _react = __webpack_require__(/*! react */ \"./node_modules/react/i
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nmodule.exports = {\n    ERROR: 'error',\n    MESSAGE: 'message',\n\n    UPDATE_CHECK: 'checking-for-update',\n    UPDATE_AVAILABLE: 'update-available',\n    UPDATE_NOT_AVAILABLE: 'update-not-available',\n    UPDATE_DOWNLOAD_COMPLETE: 'update-download-complete',\n    UPDATE_DOWNLOAD_PROGRESS: 'download-progress',\n    UPDATE_WILL_INSTALL_NOW: 'Update will install in a moment',\n\n    APP_UPDATE_INSTALL: 'app-update-install',\n    APP_UPDATE_PERMISSION: 'app-update-permission',\n\n    INVALID_CREDENCIALS: 'Invalid Credencials'\n};\n\n//# sourceURL=webpack:///./app/src/utils/constants.js?");
+eval("\n\nmodule.exports = {\n    ERROR: 'error',\n    MESSAGE: 'message',\n\n    UPDATE_CHECK: 'checking-for-update',\n    UPDATE_AVAILABLE: 'update-available',\n    UPDATE_NOT_AVAILABLE: 'update-not-available',\n    UPDATE_DOWNLOAD_COMPLETE: 'update-downloaded',\n    UPDATE_DOWNLOAD_PROGRESS: 'download-progress',\n    UPDATE_WILL_INSTALL_NOW: 'Update will install in a moment',\n\n    APP_UPDATE_INSTALL: 'app-update-install',\n    APP_UPDATE_PERMISSION: 'app-update-permission',\n\n    INVALID_CREDENCIALS: 'Invalid Credencials'\n};\n\n//# sourceURL=webpack:///./app/src/utils/constants.js?");
 
 /***/ }),
 
