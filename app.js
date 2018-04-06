@@ -85,27 +85,27 @@ const sendStatusToWindow = (data) => {
     }
 };
 
-autoUpdater.on('checking-for-update', () => {
-  sendStatusToWindow('Checking for update...');
+autoUpdater.on(UPDATE_CHECK, () => {
+  sendStatusToWindow('Checking for update.');
 });
 
-autoUpdater.on('update-available', info => {
-  sendStatusToWindow('Update available.');
+autoUpdater.on(UPDATE_AVAILABLE, info => {
+  sendStatusToWindow('App update available.');
 });
 
-autoUpdater.on('update-not-available', info => {
-  sendStatusToWindow('Update not available.');
+autoUpdater.on(UPDATE_NOT_AVAILABLE, info => {
+  sendStatusToWindow('App is uptodate.');
 });
 
-autoUpdater.on('error', (err) => {
-  sendStatusToWindow('Error in auto-updater. ' + err);
+autoUpdater.on(ERROR, err => {
+  sendStatusToWindow('Error in auto-updater.', err);
 });
 
-autoUpdater.on('download-progress', (progressObj) => {
-  sendStatusToWindow(`Downloaded: ${progressObj.percent}%`);
+autoUpdater.on(UPDATE_DOWNLOAD_PROGRESS, progressObj => {
+  sendStatusToWindow(`Downloaded: ${Math.round(progressObj.percent)}%`);
 });
 
-autoUpdater.on('update-downloaded', info => {
+autoUpdater.on(UPDATE_DOWNLOAD_COMPLETE, info => {
     mainWindow.send(UPDATE_DOWNLOAD_COMPLETE, info);
 });
 

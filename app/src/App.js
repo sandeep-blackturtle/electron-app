@@ -104,7 +104,7 @@ class App extends Component {
         return (
             <div className="app">
                 {
-                    this.state.newUpdate==false ?
+                    this.state.newUpdate ?
                     <Alert value={'Update Available'}>
                         <Button className="cancel-button" value={'Cancel'} onClick={() => this.handleDeniedUpdateInstall(false)}/>
                         <Button className="update-button" value={'Update'} onClick={() => this.handleAcceptUpdateInstall(true)}/>
