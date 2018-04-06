@@ -5,7 +5,7 @@ module.exports = {
     UPDATE_CHECK: 'checking-for-update',
     UPDATE_AVAILABLE: 'update-available',
     UPDATE_NOT_AVAILABLE: 'update-not-available',
-    UPDATE_DOWNLOAD_COMPLETE: 'update-downloaded',
+    UPDATE_DOWNLOAD_COMPLETE: 'update-download-complete',
     UPDATE_DOWNLOAD_PROGRESS: 'download-progress',
     UPDATE_WILL_INSTALL_NOW: 'Update will install in a moment',
 
