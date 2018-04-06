@@ -110,7 +110,6 @@ autoUpdater.on(UPDATE_DOWNLOAD_COMPLETE, info => {
 });
 
 ipcMain.on(APP_UPDATE_PERMISSION, (event, data) => {
-
     if(data) {
         autoUpdater.quitAndInstall();
     }

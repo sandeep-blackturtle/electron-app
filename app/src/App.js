@@ -96,7 +96,7 @@ class App extends Component {
                     acceptUpdateInstall: false
                 }))
                 ipcRenderer.send(APP_UPDATE_PERMISSION, true)
-            }, 1500)
+            }, 2500)
         }
     }
 
