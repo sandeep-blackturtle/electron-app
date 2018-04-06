@@ -1,6 +1,7 @@
 @import "mixins";
 
 $white: #fff;
+$black: #212121;
 $green: #43A047;
 $darkGreen: #388E3C;
 $blue: #1976D2;
@@ -73,7 +74,7 @@ body {
 }
 
 .model {
-    background: $grey;
+    background: $blueGray;
     position: absolute;
     top: 0px;
     bottom: 0px;
@@ -93,6 +94,41 @@ body {
         -moz-transform: translate(-50%, -50%);
         -o-transform: translate(-50%, -50%);
         -ms-transform: translate(-50%, -50%);
+    }
+
+    .model-title {
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .model-close {
+        width: 25px;
+        height: 25px;
+        position: fixed;
+        right: 0px;
+        top: 0px;
+        text-align: center;
+
+        button {
+            font-size: 11px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            color: #212121;
+            background-color: transparent;
+        }
+
+        button:hover {
+            color:$red;
+        }
+    }
+
+    .error {
+        color: $red;
+    }
+
+    .success {
+        color: $green;
     }
 }
 

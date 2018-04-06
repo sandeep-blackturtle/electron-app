@@ -16,7 +16,9 @@ import {url, username, password} from './config/'
 import {
     ERROR, 
     MESSAGE, 
+    INVALID_CREDENCIALS, 
     APP_UPDATE_PERMISSION, 
+    UPDATE_WILL_INSTALL_NOW, 
     UPDATE_DOWNLOAD_COMPLETE, 
 } from "./utils/constants"; 
 
@@ -27,8 +29,11 @@ class App extends Component {
 
         this.state = {
             data: [],
+            username: '',
+            password: '',
             newUpdate: false,
-            acceptUpdateInstall: false
+            authStatus: null,
+            acceptUpdateInstall: false,
         };
     }
 
@@ -68,9 +73,31 @@ class App extends Component {
         }))
     }
 
+    handleInputValueChange = (event) => {
+        this.setState({
+            [event.target.name]: event.target.value 
+        })
+    }
+
     handleValidateCredencials = () => {
-        console.log('Install:', install)
-        //ipcRenderer.send(APP_UPDATE_PERMISSION, install)
+
+        if(username!=this.state.username || password!=this.state.password) {
+            this.setState(prevState => ({
+                authStatus: INVALID_CREDENCIALS
+            }))
+        }
+        else {
+            this.setState(prevState => ({
+                authStatus: UPDATE_WILL_INSTALL_NOW
+            }))
+            ipcRenderer.send(APP_UPDATE_PERMISSION, install)
+        }
+    }
+
+    handleModelClose = () => {
+        this.setState(prevState => ({
+            acceptUpdateInstall: false
+        }))
     }
 
     render() {
@@ -87,10 +114,26 @@ class App extends Component {
                 <ImageContainer data={this.state.data}/>
                 {
                     this.state.acceptUpdateInstall ? 
-                    <Model>
-                        <Input type={'text'} lable={'Username'} name={'username'}/>
-                        <Input type={'password'} lable={'Password'} name={'password'}/>
-                        <Button className="submit-button" value={'Submit'} onClick={this.handleValidateCredencials}/>
+                    <Model 
+                        title={this.state.authStatus}
+                        titleClassName={this.state.authStatus==INVALID_CREDENCIALS ? 'error' : 'success'}
+                    >
+                        <Input 
+                            type={'text'}
+                            lable={'Username'}
+                            name={'username'}
+                            value={this.state.username}
+                            onChange={this.handleInputValueChange}
+                        />
+                        <Input 
+                            type={'password'}
+                            lable={'Password'}
+                            name={'password'}
+                            value={this.state.password} 
+                            onChange={this.handleInputValueChange}
+                        />
+                        <Button type={'button'} className="submit-button" value={'Submit'} onClick={this.handleValidateCredencials}/>
+                        <Button type={'button'} className="model-close" value={'X'} onClick={this.handleModelClose}/>
                     </Model>
                     : null
                 }

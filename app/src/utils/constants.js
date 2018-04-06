@@ -7,7 +7,10 @@ module.exports = {
     UPDATE_NOT_AVAILABLE: 'update-not-available',
     UPDATE_DOWNLOAD_COMPLETE: 'update-downloaded',
     UPDATE_DOWNLOAD_PROGRESS: 'download-progress',
+    UPDATE_WILL_INSTALL_NOW: 'Update will install in a moment',
 
     APP_UPDATE_INSTALL: 'app-update-install',
     APP_UPDATE_PERMISSION: 'app-update-permission',
+
+    INVALID_CREDENCIALS: 'Invalid Credencials',
 }
