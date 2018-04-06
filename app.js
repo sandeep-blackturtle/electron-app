@@ -55,7 +55,9 @@ function createWindow() {
     });
 
     // trigger autoupdate check
-    autoUpdater.checkForUpdates();
+    if (process.env.NODE_ENV === 'production') {
+        autoUpdater.checkForUpdates()
+    }
 }
 
 // Called after initialization of app and create browser windows.
