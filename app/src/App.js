@@ -62,14 +62,14 @@ class App extends Component {
 
     handleAcceptUpdateInstall = (install) => {
         this.setState(prevState => ({
-            newUpdate: true, 
+            newUpdate: false, 
             acceptUpdateInstall: true 
         }))
     }
 
     handleDeniedUpdateInstall = (install) => {
         this.setState(prevState => ({
-            newUpdate: true
+            newUpdate: false
         }))
     }
 
@@ -90,7 +90,13 @@ class App extends Component {
             this.setState(prevState => ({
                 authStatus: UPDATE_WILL_INSTALL_NOW
             }))
-            ipcRenderer.send(APP_UPDATE_PERMISSION, install)
+
+            setTimeout( ()=>{
+                this.setState(prevState => ({
+                    acceptUpdateInstall: false
+                }))
+                ipcRenderer.send(APP_UPDATE_PERMISSION, true)
+            }, 1500)
         }
     }
 
