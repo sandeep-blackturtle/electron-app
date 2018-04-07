@@ -1,19 +1,18 @@
-import React from 'react'
+import React from 'react';
 
 const Input = (props) => {
-
     return (
         <div className="input">
-            <label className="lable">{props.lable}</label>
-            <input 
-                type={props.type} 
-                name={props.name} 
-                placeholder={props.placeholder} 
-                value={props.value} 
+            <label className="lable" htmlFor={props.lable}>{props.lable}</label>
+            <input
+                type={props.type}
+                name={props.name}
+                placeholder={props.placeholder}
+                value={props.value}
                 onChange={props.onChange}
             />
         </div>
-    )
-}
+    );
+};
 
 export default Input;

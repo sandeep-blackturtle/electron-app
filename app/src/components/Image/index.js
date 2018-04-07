@@ -1,11 +1,11 @@
-import React  from 'react'
+import React from 'react';
 
- const Image = (props) => {
+const Image = (props) => {
     return (
         <div className="image">
-            <img src={props.src}/>
+            <img src={props.src} alt={props.alt} />
         </div>
-    )
-}
+    );
+};
 
-export default Image
+export default Image;

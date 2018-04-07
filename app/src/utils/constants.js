@@ -13,4 +13,4 @@ module.exports = {
     APP_UPDATE_PERMISSION: 'app-update-permission',
 
     INVALID_CREDENCIALS: 'Invalid Credencials',
-}
+};

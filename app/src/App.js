@@ -1,26 +1,24 @@
 // NPM Modules
-import axios from 'axios'
-import React, { Component } from 'react'
-import { render } from 'react-dom'
+import axios from 'axios';
+import React, { Component } from 'react';
+
 const { ipcRenderer } = require('electron');
-// Components 
-import Image from './components/Image/'
-import Model from './components/Model/'
-import Input from './components/Input/'
-import Alert from './components/Alert/'
-import Button from './components/Button/'
-import ImageContainer from './components/ImageContainer/'
-// Configuration 
-import {url, username, password} from './config/'
+// Components
+import Model from './components/Model/';
+import Input from './components/Input/';
+import Alert from './components/Alert/';
+import Button from './components/Button/';
+import ImageContainer from './components/ImageContainer/';
+// Configuration
+import { url, username, password } from './config/';
 // Constants
 import {
-    ERROR, 
-    MESSAGE, 
-    INVALID_CREDENCIALS, 
-    APP_UPDATE_PERMISSION, 
-    UPDATE_WILL_INSTALL_NOW, 
-    UPDATE_DOWNLOAD_COMPLETE, 
-} from "./utils/constants"; 
+    MESSAGE,
+    INVALID_CREDENCIALS,
+    APP_UPDATE_PERMISSION,
+    UPDATE_WILL_INSTALL_NOW,
+    UPDATE_DOWNLOAD_COMPLETE,
+} from './utils/constants';
 
 class App extends Component {
 
@@ -29,123 +27,129 @@ class App extends Component {
 
         this.state = {
             data: [],
+            message: '',
             username: '',
             password: '',
             newUpdate: false,
             authStatus: null,
             acceptUpdateInstall: false,
         };
+
+        this.showMessage = this.showMessage.bind(this);
+        this.handleModelClose = this.handleModelClose.bind(this);
+        this.handleInputValueChange = this.handleInputValueChange.bind(this);
+        this.handleUpdateDownloaded = this.handleUpdateDownloaded.bind(this);
+        this.handleAcceptUpdateInstall = this.handleAcceptUpdateInstall.bind(this);
+        this.handleDeniedUpdateInstall = this.handleDeniedUpdateInstall.bind(this);
+        this.handleValidateCredencials = this.handleValidateCredencials.bind(this);
     }
 
     componentDidMount() {
-        axios.get(url).then(res => {
-            this.setState({ data: res.data })
+        axios.get(url).then((res) => {
+            this.setState({ data: res.data });
         });
 
-        ipcRenderer.on(MESSAGE, this.showMessage)
-        ipcRenderer.on(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded)
+        ipcRenderer.on(MESSAGE, this.showMessage);
+        ipcRenderer.on(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
 
     componentWillUnmount() {
-        ipcRenderer.removeListener(MESSAGE, this.showMessage)
-        ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded)
+        ipcRenderer.removeListener(MESSAGE, this.showMessage);
+        ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
 
-    showMessage = (event, data) => {
-        console.log('Message:', data)
+    showMessage(event, data) {
+       // console.log('Message:', data);
+        this.setState({ message: data });
     }
 
-    handleUpdateDownloaded = (event, data) => {
-        console.log('Downloaded complete:', data)
-        this.setState(prevState => ({ newUpdate: true }))
+    handleUpdateDownloaded() {
+        // console.log('Downloaded complete:', data);
+        this.setState({ newUpdate: true });
     }
 
-    handleAcceptUpdateInstall = (install) => {
-        this.setState(prevState => ({
-            newUpdate: false, 
-            acceptUpdateInstall: true 
-        }))
-    }
-
-    handleDeniedUpdateInstall = (install) => {
-        this.setState(prevState => ({
-            newUpdate: false
-        }))
-    }
-
-    handleInputValueChange = (event) => {
+    handleAcceptUpdateInstall(install) {
         this.setState({
-            [event.target.name]: event.target.value 
-        })
+            newUpdate: false,
+            acceptUpdateInstall: install,
+        });
     }
 
-    handleValidateCredencials = () => {
+    handleDeniedUpdateInstall(install) {
+        this.setState({
+            newUpdate: install,
+        });
+    }
 
-        if(username!=this.state.username || password!=this.state.password) {
-            this.setState(prevState => ({
-                authStatus: INVALID_CREDENCIALS
-            }))
-        }
-        else {
-            this.setState(prevState => ({
-                authStatus: UPDATE_WILL_INSTALL_NOW
-            }))
+    handleInputValueChange(event) {
+        this.setState({
+            [event.target.name]: event.target.value,
+        });
+    }
 
-            setTimeout( ()=>{
-                this.setState(prevState => ({
-                    acceptUpdateInstall: false
-                }))
-                ipcRenderer.send(APP_UPDATE_PERMISSION, true)
-            }, 2500)
+    handleValidateCredencials() {
+        if (username !== this.state.username || password !== this.state.password) {
+            this.setState({
+                authStatus: INVALID_CREDENCIALS,
+            });
+        } else {
+            this.setState({
+                authStatus: UPDATE_WILL_INSTALL_NOW,
+            });
+
+            setTimeout(() => {
+                this.setState({
+                    acceptUpdateInstall: false,
+                });
+                ipcRenderer.send(APP_UPDATE_PERMISSION, true);
+            }, 2500);
         }
     }
 
-    handleModelClose = () => {
-        this.setState(prevState => ({
-            acceptUpdateInstall: false
-        }))
+    handleModelClose() {
+        this.setState({
+            acceptUpdateInstall: false,
+        });
     }
 
     render() {
         return (
             <div className="app">
-                {
-                    this.state.newUpdate ?
+                {this.state.newUpdate ?
                     <Alert value={'Update Available'}>
-                        <Button className="cancel-button" value={'Cancel'} onClick={() => this.handleDeniedUpdateInstall(false)}/>
-                        <Button className="update-button" value={'Update'} onClick={() => this.handleAcceptUpdateInstall(true)}/>
+                        <Button className="cancel-button" value={'Cancel'} onClick={() => this.handleDeniedUpdateInstall(false)} />
+                        <Button className="update-button" value={'Update'} onClick={() => this.handleAcceptUpdateInstall(true)} />
                     </Alert>
                     : null
                 }
-                <ImageContainer data={this.state.data}/>
-                {
-                    this.state.acceptUpdateInstall ? 
-                    <Model 
+                <ImageContainer data={this.state.data} />
+                {this.state.acceptUpdateInstall ?
+                    <Model
                         title={this.state.authStatus}
-                        titleClassName={this.state.authStatus==INVALID_CREDENCIALS ? 'error' : 'success'}
+                        titleClassName={this.state.authStatus === INVALID_CREDENCIALS ? 'error' : 'success'}
                     >
-                        <Input 
+                        <Input
                             type={'text'}
                             lable={'Username'}
                             name={'username'}
                             value={this.state.username}
                             onChange={this.handleInputValueChange}
                         />
-                        <Input 
+                        <Input
                             type={'password'}
                             lable={'Password'}
                             name={'password'}
-                            value={this.state.password} 
+                            value={this.state.password}
                             onChange={this.handleInputValueChange}
                         />
-                        <Button type={'button'} className="submit-button" value={'Submit'} onClick={this.handleValidateCredencials}/>
-                        <Button type={'button'} className="model-close" value={'X'} onClick={this.handleModelClose}/>
+                        <Button type={'button'} className="submit-button" value={'Submit'} onClick={this.handleValidateCredencials} />
+                        <Button type={'button'} className="model-close" value={'X'} onClick={this.handleModelClose} />
                     </Model>
                     : null
                 }
             </div>
-        )
+        );
     }
 }
 
-export default App
+export default App;

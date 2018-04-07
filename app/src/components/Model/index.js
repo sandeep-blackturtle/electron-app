@@ -1,9 +1,6 @@
-import React from 'react'
-
-import Input from '../Input' 
+import React from 'react';
 
 const Model = (props) => {
-
     return (
         <div className="model">
             <div className="model-container">
@@ -12,6 +9,6 @@ const Model = (props) => {
             </div>
         </div>
     );
-}
+};
 
 export default Model;

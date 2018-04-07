@@ -1,0 +1,9 @@
+node_modules/**
+public/**
+coverage/**
+chrome-extension/**
+src/startup.js
+src/test-components/**
+dist/**
+app/build/**
+webpack.config.js

@@ -6,18 +6,18 @@ const electron = require('electron');
 const { autoUpdater } = require('electron-updater');
 
 const {
-    ERROR, 
-    MESSAGE, 
-    UPDATE_CHECK, 
-    UPDATE_AVAILABLE, 
-    UPDATE_NOT_AVAILABLE, 
-    APP_UPDATE_PERMISSION, 
-    UPDATE_DOWNLOAD_PROGRESS, 
-    UPDATE_DOWNLOAD_COMPLETE, 
-} = require('./app/src/utils/constants')
+    ERROR,
+    MESSAGE,
+    UPDATE_CHECK,
+    UPDATE_AVAILABLE,
+    UPDATE_NOT_AVAILABLE,
+    APP_UPDATE_PERMISSION,
+    UPDATE_DOWNLOAD_PROGRESS,
+    UPDATE_DOWNLOAD_COMPLETE,
+} = require('./app/src/utils/constants');
 
 // live reload for development
-//require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
 // configure logging
 autoUpdater.logger = log;
@@ -25,7 +25,7 @@ autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
 // Module to control application life.
-const { app, BrowserWindow, ipcMain} = electron;
+const { app, BrowserWindow, ipcMain } = electron;
 
 // avoide being garbage collected
 let mainWindow;
@@ -37,41 +37,39 @@ function createWindow() {
         height: 600,
     });
 
-    //load the index.html of the app.
+    // load the index.html of the app.
     mainWindow.loadURL(
         url.format({
             pathname: path.join(__dirname, '/app/index.html'),
             protocol: 'file:',
             slashes: true,
-        })
+        }),
     );
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
-    mainWindow.on('closed', function() {
+    mainWindow.on('closed', () => {
         mainWindow = null;
     });
 
     // trigger autoupdate check
-    //if (process.env.NODE_ENV === 'production') {
-        autoUpdater.checkForUpdates()
-    //}
+    autoUpdater.checkForUpdates();
 }
 
 // Called after initialization of app and create browser windows.
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
 // Activate from forground
-app.on('activate', function() {
+app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
     }
@@ -86,31 +84,31 @@ const sendStatusToWindow = (data) => {
 };
 
 autoUpdater.on(UPDATE_CHECK, () => {
-  sendStatusToWindow('Checking for update.');
+    sendStatusToWindow('Checking for update.');
 });
 
-autoUpdater.on(UPDATE_AVAILABLE, info => {
-  sendStatusToWindow('App update available.');
+autoUpdater.on(UPDATE_AVAILABLE, (info) => {
+    sendStatusToWindow('App update available.', info);
 });
 
-autoUpdater.on(UPDATE_NOT_AVAILABLE, info => {
-  sendStatusToWindow('App is uptodate.');
+autoUpdater.on(UPDATE_NOT_AVAILABLE, (info) => {
+    sendStatusToWindow('App is uptodate.', info);
 });
 
-autoUpdater.on(ERROR, err => {
-  sendStatusToWindow('Error in auto-updater.', err);
+autoUpdater.on(ERROR, (err) => {
+    sendStatusToWindow('Error in auto-updater.', err);
 });
 
-autoUpdater.on(UPDATE_DOWNLOAD_PROGRESS, progressObj => {
-  sendStatusToWindow(`Downloaded: ${Math.round(progressObj.percent)}%`);
+autoUpdater.on(UPDATE_DOWNLOAD_PROGRESS, (progressObj) => {
+    sendStatusToWindow(`Downloaded: ${Math.round(progressObj.percent)}%`);
 });
 
-autoUpdater.on(UPDATE_DOWNLOAD_COMPLETE, info => {
+autoUpdater.on(UPDATE_DOWNLOAD_COMPLETE, (info) => {
     mainWindow.send(UPDATE_DOWNLOAD_COMPLETE, info);
 });
 
 ipcMain.on(APP_UPDATE_PERMISSION, (event, data) => {
-    if(data) {
+    if (data) {
         autoUpdater.quitAndInstall();
     }
 });
