@@ -1,6 +1,8 @@
 // npm packages
+const fs = require('fs');
 const url = require('url');
 const path = require('path');
+const request = require('request');
 const log = require('electron-log');
 const electron = require('electron');
 const { autoUpdater } = require('electron-updater');
@@ -8,6 +10,8 @@ const { autoUpdater } = require('electron-updater');
 const {
     ERROR,
     MESSAGE,
+    STORE_DATA,
+    STORED_DATA,
     UPDATE_CHECK,
     UPDATE_AVAILABLE,
     UPDATE_NOT_AVAILABLE,
@@ -35,6 +39,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        minWidth: 720,
+        minHeight: 600,
     });
 
     // load the index.html of the app.
@@ -47,7 +53,7 @@ function createWindow() {
     );
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
@@ -75,9 +81,58 @@ app.on('activate', () => {
     }
 });
 
+function downloadFile(configuration) {
+    const { remoteFile, localFile } = configuration;
+
+    return new Promise((resolve, reject) => {
+        const req = request({
+            method: 'GET',
+            uri: remoteFile,
+        });
+
+        const out = fs.createWriteStream(localFile);
+        req.pipe(out);
+
+        req.on('end', () => resolve());
+
+        req.on('error', () => reject());
+    });
+}
+
+ipcMain.on(STORE_DATA, (event, data) => {
+    const storedPaths = [];
+    const dataLength = data.length;
+    const storingPath = path.join(__dirname, '/images/');
+
+    data.map((remoteFileSource) => {
+        const filename = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
+
+        downloadFile({
+            remoteFile: remoteFileSource.url,
+            localFile: storingPath + filename,
+        }).then(() => {
+            const storedData = {
+                url: storingPath + filename,
+            };
+
+            storedPaths.push(storedData);
+
+            if (dataLength === storedPaths.length) {
+                mainWindow.send(STORED_DATA, storedPaths);
+                console.log('All Files succesfully downloaded');
+            }
+
+            console.log('File succesfully downloaded');
+        }).catch((error) => {
+            console.log('Error', error);
+        });
+    });
+});
+
 // Auto updates
 const sendStatusToWindow = (data) => {
     log.info(data);
+
     if (mainWindow) {
         mainWindow.send(MESSAGE, data);
     }

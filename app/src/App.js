@@ -14,6 +14,8 @@ import { url, username, password } from './config/';
 // Constants
 import {
     MESSAGE,
+    STORE_DATA,
+    STORED_DATA,
     INVALID_CREDENCIALS,
     APP_UPDATE_PERMISSION,
     UPDATE_WILL_INSTALL_NOW,
@@ -30,13 +32,17 @@ class App extends Component {
             message: '',
             username: '',
             password: '',
+            offline: false,
+            offlineData: [],
             newUpdate: false,
             authStatus: null,
             acceptUpdateInstall: false,
         };
 
-        this.showMessage = this.showMessage.bind(this);
+        this.handleStoreData = this.handleStoreData.bind(this);
+        this.handleStoredData = this.handleStoredData.bind(this);
         this.handleModelClose = this.handleModelClose.bind(this);
+        this.handleShowMessage = this.handleShowMessage.bind(this);
         this.handleInputValueChange = this.handleInputValueChange.bind(this);
         this.handleUpdateDownloaded = this.handleUpdateDownloaded.bind(this);
         this.handleAcceptUpdateInstall = this.handleAcceptUpdateInstall.bind(this);
@@ -47,18 +53,32 @@ class App extends Component {
     componentDidMount() {
         axios.get(url).then((res) => {
             this.setState({ data: res.data });
+            this.handleStoreData(res.data);
         });
 
-        ipcRenderer.on(MESSAGE, this.showMessage);
+        ipcRenderer.on(MESSAGE, this.handleShowMessage);
+        ipcRenderer.on(STORED_DATA, this.handleStoredData);
         ipcRenderer.on(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
 
     componentWillUnmount() {
-        ipcRenderer.removeListener(MESSAGE, this.showMessage);
+        ipcRenderer.removeListener(MESSAGE, this.handleShowMessage);
+        ipcRenderer.removeListener(STORED_DATA, this.handleStoredData);
         ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
 
-    showMessage(event, data) {
+    handleStoreData(data) {
+        console.log(data);
+        if (data.length > 0) {
+            ipcRenderer.send(STORE_DATA, data);
+        }
+    }
+
+    handleStoredData(event, data) {
+        this.setState({ offlineData: data });
+    }
+
+    handleShowMessage(event, data) {
        // console.log('Message:', data);
         this.setState({ message: data });
     }
@@ -76,9 +96,7 @@ class App extends Component {
     }
 
     handleDeniedUpdateInstall(install) {
-        this.setState({
-            newUpdate: install,
-        });
+        this.setState({ newUpdate: install });
     }
 
     handleInputValueChange(event) {
@@ -122,7 +140,7 @@ class App extends Component {
                     </Alert>
                     : null
                 }
-                <ImageContainer data={this.state.data} />
+                <ImageContainer data={this.state.offline ? this.state.offlineData : this.state.data} />
                 {this.state.acceptUpdateInstall ?
                     <Model
                         title={this.state.authStatus}
