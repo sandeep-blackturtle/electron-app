@@ -3,6 +3,8 @@ module.exports = {
     ERROR: 'error',
     MESSAGE: 'message',
 
+    APP_IS_OFFLINE: 'app-is-offline',
+
     UPDATE_CHECK: 'checking-for-update',
     UPDATE_AVAILABLE: 'update-available',
     UPDATE_NOT_AVAILABLE: 'update-not-available',
@@ -15,7 +17,12 @@ module.exports = {
     STORE_DATA: 'store-data',
     STORED_DATA: 'stored-data',
 
+    NEW_CONTENT_DOWNLOAD: 'new-content-download',
+    NEW_CONTENT_AVAILABLE: 'new-content-available',
+
     // messages
-    INVALID_CREDENCIALS: 'Invalid Credencials',
-    UPDATE_WILL_INSTALL_NOW: 'Update will install in a moment',
+    MESSAGE_UPDATE_AVAILABLE: 'Update Available',
+    MESSAGE_NEW_CONTENT_AVAILABLE: 'New Content Available',
+    MESSAGE_INVALID_CREDENCIALS: 'Invalid Credencials',
+    MESSAGE_UPDATE_WILL_INSTALL_NOW: 'Update will install in a moment',
 };

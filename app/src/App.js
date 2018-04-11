@@ -1,8 +1,7 @@
 // NPM Modules
 import axios from 'axios';
 import React, { Component } from 'react';
-
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from 'electron';
 // Components
 import Model from './components/Model/';
 import Input from './components/Input/';
@@ -16,10 +15,14 @@ import {
     MESSAGE,
     STORE_DATA,
     STORED_DATA,
-    INVALID_CREDENCIALS,
+    APP_IS_OFFLINE,
+    NEW_CONTENT_DOWNLOAD,
+    NEW_CONTENT_AVAILABLE,
     APP_UPDATE_PERMISSION,
-    UPDATE_WILL_INSTALL_NOW,
     UPDATE_DOWNLOAD_COMPLETE,
+    MESSAGE_UPDATE_AVAILABLE,
+    MESSAGE_INVALID_CREDENCIALS,
+    MESSAGE_UPDATE_WILL_INSTALL_NOW,
 } from './utils/constants';
 
 class App extends Component {
@@ -34,8 +37,9 @@ class App extends Component {
             password: '',
             offline: false,
             offlineData: [],
-            newUpdate: false,
             authStatus: null,
+            newUpdate: false,
+            newContent: false,
             acceptUpdateInstall: false,
         };
 
@@ -48,27 +52,50 @@ class App extends Component {
         this.handleAcceptUpdateInstall = this.handleAcceptUpdateInstall.bind(this);
         this.handleDeniedUpdateInstall = this.handleDeniedUpdateInstall.bind(this);
         this.handleValidateCredencials = this.handleValidateCredencials.bind(this);
+        this.handleCheckNetworkConnection = this.handleCheckNetworkConnection.bind(this);
     }
 
     componentDidMount() {
         axios.get(url).then((res) => {
-            this.setState({ data: res.data });
-            this.handleStoreData(res.data);
+            const data = res.data;
+            this.setState({ data: data.data });
+            this.handleStoreData(data.data);
         });
 
         ipcRenderer.on(MESSAGE, this.handleShowMessage);
         ipcRenderer.on(STORED_DATA, this.handleStoredData);
+        ipcRenderer.on(NEW_CONTENT_AVAILABLE, this.handleNewContentAvailable);
         ipcRenderer.on(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
+
+        this.handleCheckNetworkConnection();
     }
 
     componentWillUnmount() {
         ipcRenderer.removeListener(MESSAGE, this.handleShowMessage);
         ipcRenderer.removeListener(STORED_DATA, this.handleStoredData);
+        ipcRenderer.removeListener(NEW_CONTENT_AVAILABLE, this.handleNewContentAvailable);
         ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
 
+    handleCheckNetworkConnection() {
+        if (navigator.onLine) {
+            this.setState({ offline: false });
+            ipcRenderer.send(APP_IS_OFFLINE, true);
+        } else {
+            this.setState({ offline: true });
+            ipcRenderer.send(APP_IS_OFFLINE, true);
+        }
+    }
+
+    handleNewContentAvailable(event, data) {
+        console.log('newContent', data);
+    }
+
+    handleNewContentDownload() {
+        console.log('newContentDownload');
+    }
+
     handleStoreData(data) {
-        console.log(data);
         if (data.length > 0) {
             ipcRenderer.send(STORE_DATA, data);
         }
@@ -79,7 +106,7 @@ class App extends Component {
     }
 
     handleShowMessage(event, data) {
-       // console.log('Message:', data);
+        console.log('Message:', data);
         this.setState({ message: data });
     }
 
@@ -108,11 +135,11 @@ class App extends Component {
     handleValidateCredencials() {
         if (username !== this.state.username || password !== this.state.password) {
             this.setState({
-                authStatus: INVALID_CREDENCIALS,
+                authStatus: MESSAGE_INVALID_CREDENCIALS,
             });
         } else {
             this.setState({
-                authStatus: UPDATE_WILL_INSTALL_NOW,
+                authStatus: MESSAGE_UPDATE_WILL_INSTALL_NOW,
             });
 
             setTimeout(() => {
@@ -134,13 +161,13 @@ class App extends Component {
         return (
             <div className="app">
                 {this.state.newUpdate ?
-                    <Alert value={'Update Available'}>
+                    <Alert value={MESSAGE_UPDATE_AVAILABLE}>
                         <Button className="cancel-button" value={'Cancel'} onClick={() => this.handleDeniedUpdateInstall(false)} />
                         <Button className="update-button" value={'Update'} onClick={() => this.handleAcceptUpdateInstall(true)} />
                     </Alert>
                     : null
                 }
-                <ImageContainer data={this.state.offline ? this.state.offlineData : this.state.data} />
+                <ImageContainer data={this.state.offline ? this.state.offlineData : this.state.offlineData} />
                 {this.state.acceptUpdateInstall ?
                     <Model
                         title={this.state.authStatus}
