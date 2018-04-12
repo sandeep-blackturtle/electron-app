@@ -183,7 +183,7 @@ ipcMain.on(NEW_CONTENT_DOWNLOAD, (event, data) => {
                 mainWindow.send(MESSAGE, allFiles);
             }
         }).catch(() => {
-            console.log('Error downloading files');
+            mainWindow.send(MESSAGE, 'Error downloading files');
         });
     });
 });

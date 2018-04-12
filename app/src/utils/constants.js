@@ -19,7 +19,6 @@ module.exports = {
 
     NEW_CONTENT_DOWNLOAD: 'new-content-download',
     NEW_CONTENT_AVAILABLE: 'new-content-available',
-    NEW_CONTENT_DOWNLOAD_COMPLETE: 'new-content-download-complete',
 
     // messages
     MESSAGE_UPDATE_AVAILABLE: 'Update Available',

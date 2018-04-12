@@ -101,7 +101,7 @@ class App extends Component {
     }
 
     handleNewContentAvailable(event, data) {
-        this.setState({ newContent: true });
+        this.setState({ newContent: data });
     }
 
     handleStoreData(data) {
