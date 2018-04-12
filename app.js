@@ -38,8 +38,9 @@ const { app, BrowserWindow, ipcMain } = electron;
 let mainWindow;
 // global variables
 const appDataPath = app.getPath('appData');
-const dataStoringPath = path.join(appDataPath, `${app.getName()}`);
-const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
+const dataStoringPath = path.join(appDataPath, `${app.getName()}/data/`);
+// create dataStoringPath if not exist
+if (!fs.existsSync(dataStoringPath)) fs.mkdirSync(dataStoringPath);
 
 const createWindow = () => {
     // create the browser window.
@@ -69,11 +70,6 @@ const createWindow = () => {
 
     // trigger autoupdate check
     autoUpdater.checkForUpdates();
-
-    // create dataStoringPath if not exist
-    if (!fs.existsSync(dataStoringPath)) {
-        fs.mkdirSync(dataStoringPath, 777);
-    }
 };
 
 // Called after initialization of app and ready create browser windows.
@@ -140,6 +136,8 @@ const downloadFile = (configuration) => {
 
 // Get data from server and call above method
 ipcMain.on(STORE_DATA, (event, data) => {
+    const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
+
     data.map((remoteFileSource) => {
         const remoteFile = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
 
@@ -155,6 +153,7 @@ ipcMain.on(STORE_DATA, (event, data) => {
 ipcMain.on(NEW_CONTENT_DOWNLOAD, (event, data) => {
     const allFiles = [];
     const dataLength = data.length;
+    const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
 
     fs.readdirSync(dataStoringPath).forEach((file) => {
         const storedFile = {
