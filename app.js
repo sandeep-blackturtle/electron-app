@@ -38,12 +38,8 @@ const { app, BrowserWindow, ipcMain } = electron;
 let mainWindow;
 // global variables
 const appDataPath = app.getPath('appData');
-const dataStoringPath = path.join(appDataPath, `${app.getName()}/data/`);
+const dataStoringPath = path.join(appDataPath, `${app.getName()}`);
 const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
-// create dataStoringPath if not exist
-if (!fs.existsSync(dataStoringPath)) {
-    fs.mkdirSync(dataStoringPath);
-}
 
 const createWindow = () => {
     // create the browser window.
@@ -73,6 +69,11 @@ const createWindow = () => {
 
     // trigger autoupdate check
     autoUpdater.checkForUpdates();
+
+    // create dataStoringPath if not exist
+    if (!fs.existsSync(dataStoringPath)) {
+        fs.mkdirSync(dataStoringPath, 777);
+    }
 };
 
 // Called after initialization of app and ready create browser windows.
