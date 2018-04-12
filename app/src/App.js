@@ -9,7 +9,7 @@ import Alert from './components/Alert/';
 import Button from './components/Button/';
 import ImageContainer from './components/ImageContainer/';
 // Configuration
-import { url, username, password } from './config/';
+import { url } from './config/';
 // Constants
 import {
     MESSAGE,
@@ -22,7 +22,9 @@ import {
     UPDATE_DOWNLOAD_COMPLETE,
     MESSAGE_UPDATE_AVAILABLE,
     MESSAGE_INVALID_CREDENCIALS,
+    MESSAGE_NEW_CONTENT_AVAILABLE,
     MESSAGE_UPDATE_WILL_INSTALL_NOW,
+    MESSAGE_NEW_CONTENT_WILL_DOWNLOAD,
 } from './utils/constants';
 
 class App extends Component {
@@ -41,6 +43,7 @@ class App extends Component {
             newUpdate: false,
             newContent: false,
             acceptUpdateInstall: false,
+            acceptContentDownload: false,
         };
 
         this.handleStoreData = this.handleStoreData.bind(this);
@@ -49,16 +52,21 @@ class App extends Component {
         this.handleShowMessage = this.handleShowMessage.bind(this);
         this.handleInputValueChange = this.handleInputValueChange.bind(this);
         this.handleUpdateDownloaded = this.handleUpdateDownloaded.bind(this);
+        this.handleNewContentAvailable = this.handleNewContentAvailable.bind(this);
         this.handleAcceptUpdateInstall = this.handleAcceptUpdateInstall.bind(this);
         this.handleDeniedUpdateInstall = this.handleDeniedUpdateInstall.bind(this);
         this.handleValidateCredencials = this.handleValidateCredencials.bind(this);
         this.handleCheckNetworkConnection = this.handleCheckNetworkConnection.bind(this);
+        this.handleAccepNewContentDownload = this.handleAccepNewContentDownload.bind(this);
+        this.handleDeniedNewContentDownload = this.handleDeniedNewContentDownload.bind(this);
     }
 
     componentDidMount() {
         axios.get(url).then((res) => {
             const data = res.data;
-            this.setState({ data: data.data });
+            this.setState({
+                data: data.data,
+            });
             this.handleStoreData(data.data);
         });
 
@@ -77,6 +85,11 @@ class App extends Component {
         ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
 
+    handleShowMessage(event, data) {
+        console.log('Message:', data);
+        this.setState({ message: data });
+    }
+
     handleCheckNetworkConnection() {
         if (navigator.onLine) {
             this.setState({ offline: false });
@@ -88,11 +101,7 @@ class App extends Component {
     }
 
     handleNewContentAvailable(event, data) {
-        console.log('newContent', data);
-    }
-
-    handleNewContentDownload() {
-        console.log('newContentDownload');
+        this.setState({ newContent: true });
     }
 
     handleStoreData(data) {
@@ -105,25 +114,31 @@ class App extends Component {
         this.setState({ offlineData: data });
     }
 
-    handleShowMessage(event, data) {
-        console.log('Message:', data);
-        this.setState({ message: data });
-    }
-
     handleUpdateDownloaded() {
         // console.log('Downloaded complete:', data);
         this.setState({ newUpdate: true });
     }
 
-    handleAcceptUpdateInstall(install) {
+    handleAccepNewContentDownload(status) {
         this.setState({
-            newUpdate: false,
-            acceptUpdateInstall: install,
+            newContent: false,
+            acceptContentDownload: status,
         });
     }
 
-    handleDeniedUpdateInstall(install) {
-        this.setState({ newUpdate: install });
+    handleDeniedNewContentDownload(status) {
+        this.setState({ newContent: status });
+    }
+
+    handleAcceptUpdateInstall(status) {
+        this.setState({
+            newUpdate: false,
+            acceptContentDownload: status,
+        });
+    }
+
+    handleDeniedUpdateInstall(status) {
+        this.setState({ newUpdate: status });
     }
 
     handleInputValueChange(event) {
@@ -133,33 +148,46 @@ class App extends Component {
     }
 
     handleValidateCredencials() {
-        if (username !== this.state.username || password !== this.state.password) {
-            this.setState({
-                authStatus: MESSAGE_INVALID_CREDENCIALS,
-            });
-        } else {
-            this.setState({
-                authStatus: MESSAGE_UPDATE_WILL_INSTALL_NOW,
-            });
-
-            setTimeout(() => {
+        axios.get(url).then((res) => {
+            if (res.data.username !== this.state.username || res.data.password !== this.state.password) {
                 this.setState({
-                    acceptUpdateInstall: false,
+                    authStatus: MESSAGE_INVALID_CREDENCIALS,
                 });
-                ipcRenderer.send(APP_UPDATE_PERMISSION, true);
-            }, 2500);
-        }
+            } else {
+                const success = this.state.acceptContentDownload ? MESSAGE_NEW_CONTENT_WILL_DOWNLOAD : MESSAGE_UPDATE_WILL_INSTALL_NOW;
+                this.setState({
+                    authStatus: success,
+                });
+
+                setTimeout(() => {
+                    this.setState({
+                        acceptUpdateInstall: false,
+                        acceptContentDownload: false,
+                    });
+                    // ipcRenderer.send(APP_UPDATE_PERMISSION, true);
+                    ipcRenderer.send(NEW_CONTENT_DOWNLOAD, this.state.data);
+                }, 2500);
+            }
+        });
     }
 
     handleModelClose() {
         this.setState({
             acceptUpdateInstall: false,
+            acceptContentDownload: false,
         });
     }
 
     render() {
         return (
             <div className="app">
+                {this.state.newContent ?
+                    <Alert value={MESSAGE_NEW_CONTENT_AVAILABLE}>
+                        <Button className="cancel-button" value={'Cancel'} onClick={() => this.handleDeniedNewContentDownload(false)} />
+                        <Button className="update-button" value={'Download'} onClick={() => this.handleAccepNewContentDownload(true)} />
+                    </Alert>
+                    : null
+                }
                 {this.state.newUpdate ?
                     <Alert value={MESSAGE_UPDATE_AVAILABLE}>
                         <Button className="cancel-button" value={'Cancel'} onClick={() => this.handleDeniedUpdateInstall(false)} />
@@ -168,10 +196,10 @@ class App extends Component {
                     : null
                 }
                 <ImageContainer data={this.state.offline ? this.state.offlineData : this.state.offlineData} />
-                {this.state.acceptUpdateInstall ?
+                {this.state.acceptUpdateInstall || this.state.acceptContentDownload ?
                     <Model
                         title={this.state.authStatus}
-                        titleClassName={this.state.authStatus === INVALID_CREDENCIALS ? 'error' : 'success'}
+                        titleClassName={this.state.authStatus === MESSAGE_INVALID_CREDENCIALS ? 'error' : 'success'}
                     >
                         <Input
                             type={'text'}

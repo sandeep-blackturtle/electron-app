@@ -36,6 +36,14 @@ const { app, BrowserWindow, ipcMain } = electron;
 
 // avoide being garbage collected
 let mainWindow;
+// global variables
+const appDataPath = app.getPath('appData');
+const dataStoringPath = path.join(appDataPath, `${app.getName()}/data/`);
+const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
+// create dataStoringPath if not exist
+if (!fs.existsSync(dataStoringPath)) {
+    fs.mkdirSync(dataStoringPath);
+}
 
 const createWindow = () => {
     // create the browser window.
@@ -95,24 +103,18 @@ const sendStatusToWindow = (data) => {
 
 // Serve offline data
 ipcMain.on(APP_IS_OFFLINE, (event, data) => {
-    const storedFiles = [];
-    const appData = app.getPath('appData');
-    const storedFilePath = path.join(appData, `${app.getName()}/data/`);
-
-    if (!fs.existsSync(storedFilePath)) {
-        fs.mkdirSync(storedFilePath);
-    }
+    const getStoredFiles = [];
 
     if (data) {
-        fs.readdirSync(storedFilePath).forEach((file) => {
+        fs.readdirSync(dataStoringPath).forEach((file) => {
             const storedFile = {
-                url: storedFilePath + file,
+                url: dataStoringPath + file,
             };
-            storedFiles.push(storedFile);
+            getStoredFiles.push(storedFile);
         });
 
-        mainWindow.send(STORED_DATA, storedFiles);
-        mainWindow.send(MESSAGE, storedFiles);
+        mainWindow.send(STORED_DATA, getStoredFiles);
+        mainWindow.send(MESSAGE, getStoredFiles);
     }
 });
 
@@ -136,79 +138,49 @@ const downloadFile = (configuration) => {
 };
 
 // Get data from server and call above method
-// ipcMain.on(STORE_DATA, (event, data) => {
-//     const storingPath = path.join(__dirname, '/images/');
-//     const storedFilesPaths = fs.readdirSync(storingPath).map(file => file);
-
-//     data.map((remoteFileSource) => {
-//         const remoteFilename = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
-
-//         if (storedFilesPaths.find(file => file === remoteFilename)) {
-//             return true;
-//         }
-
-//         mainWindow.send(NEW_CONTENT_AVAILABLE, true);
-//     });
-// });
-
-// ipcMain.on(NEW_CONTENT_DOWNLOAD, (event, data)=> {
-//     const dataLength = data.length;
-//     const storingPath = path.join(__dirname, '/images/');
-//     const storedFilesPaths = fs.readdirSync(storingPath).map(file => file);
-
-//     data.map((remoteFileSource) => {
-//         const remoteFilename = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
-
-//         if (storedFilesPaths.find(file => file === remoteFilename)) {
-//             return true;
-//         }
-
-//         downloadFile({
-//             remoteFile: remoteFileSource.url,
-//             localFile: storingPath + remoteFilename,
-//         }).then(() => {
-//             const storedData = {
-//                 url: storingPath + remoteFilename,
-//             };
-//             storedFilesPaths.push(storedData);
-
-//             // Send paths to local files
-//             if (dataLength === storedFilesPaths.length) {
-//                 mainWindow.send(STORED_DATA, storedFilesPaths);
-//                 mainWindow.send(MESSAGE, storedFilesPaths);
-//             }
-//         }).catch(() => {
-//             console.log('Error downloading files');
-//         });
-//     });
-// });
-
 ipcMain.on(STORE_DATA, (event, data) => {
-    const storedPaths = [];
-    const dataLength = data.length;
-    const appData = app.getPath('appData');
-    const storingPath = path.join(appData, `${app.getName()}/data/`);
+    data.map((remoteFileSource) => {
+        const remoteFile = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
 
-    if (!fs.existsSync(storingPath)) {
-        fs.mkdirSync(storingPath);
-    }
+        if (existingFiles.find(existingFile => existingFile === remoteFile)) {
+            return true;
+        }
+
+        return mainWindow.send(NEW_CONTENT_AVAILABLE, true);
+    });
+});
+
+// Download new content
+ipcMain.on(NEW_CONTENT_DOWNLOAD, (event, data) => {
+    const allFiles = [];
+    const dataLength = data.length;
+
+    fs.readdirSync(dataStoringPath).forEach((file) => {
+        const storedFile = {
+            url: dataStoringPath + file,
+        };
+        allFiles.push(storedFile);
+    });
 
     data.map((remoteFileSource) => {
-        const filename = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
+        const remoteFile = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
 
-        downloadFile({
+        if (existingFiles.find(existingFile => existingFile === remoteFile)) {
+            return true;
+        }
+
+        return downloadFile({
             remoteFile: remoteFileSource.url,
-            localFile: storingPath + filename,
+            localFile: dataStoringPath + remoteFile,
         }).then(() => {
             const storedData = {
-                url: storingPath + filename,
+                url: dataStoringPath + remoteFile,
             };
-            storedPaths.push(storedData);
+            allFiles.push(storedData);
 
-            // Send paths to local files
-            if (dataLength === storedPaths.length) {
-                // mainWindow.send(STORED_DATA, storedPaths);
-                mainWindow.send(MESSAGE, storedPaths);
+            if (dataLength === allFiles.length) {
+                mainWindow.send(STORED_DATA, allFiles);
+                mainWindow.send(MESSAGE, allFiles);
             }
         }).catch(() => {
             console.log('Error downloading files');
