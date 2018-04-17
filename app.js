@@ -274,6 +274,78 @@ app.on('ready', () => {
     Menu.setApplicationMenu(menu);
 });
 
+// Called after initialization of app and ready create browser windows.
+app.on('ready', () => {
+    createWindow();
+
+    const template = [
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'Check for new content',
+                    click: () => {
+                        checkForNewContent();
+                    },
+                },
+            ],
+        },
+        {
+            role: 'window',
+            submenu: [
+                { role: 'minimize' },
+                { role: 'close' },
+            ],
+        },
+        {
+            role: 'help',
+            submenu: [
+                {
+                    label: 'Contact',
+                    click: () => {
+                        require('electron').shell.openExternal('https://3dit.de/en/contact.html');
+                    },
+                },
+            ],
+        },
+    ];
+
+    if (process.platform === 'darwin') {
+        template.unshift({
+            label: app.getName(),
+            submenu: [
+                {
+                    label: 'Check for new content',
+                    click: () => {
+                        checkForNewContent();
+                    },
+                },
+                { role: 'about' },
+                { type: 'separator' },
+                { role: 'services', submenu: [] },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideothers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' },
+            ],
+        });
+
+        // Window menu
+        template[3].submenu = [
+            { role: 'close' },
+            { role: 'minimize' },
+            { role: 'zoom' },
+            { type: 'separator' },
+            { role: 'front' },
+        ];
+    }
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+});
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
