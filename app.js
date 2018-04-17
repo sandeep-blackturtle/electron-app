@@ -9,6 +9,7 @@ const rp = require('request-promise');
 const { autoUpdater } = require('electron-updater');
 
 const config = require('./app/src/config/');
+const { getFileName } = require('./app/src/utils/helpers');
 
 const {
     ERROR,
@@ -65,7 +66,7 @@ const createWindow = () => {
     );
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
@@ -90,7 +91,7 @@ const checkIsFilesExist = (data) => {
     const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
 
     data.map((remoteFileSource) => {
-        const remoteFile = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
+        const remoteFile = getFileName(remoteFileSource.url);
 
         if (existingFiles.find(existingFile => existingFile === remoteFile)) {
             return mainWindow.send(NEW_CONTENT_AVAILABLE, STATUS_NEW_CONTENT_NO);
@@ -104,6 +105,10 @@ const checkIsFilesExist = (data) => {
 const checkForNewContent = () => {
     const options = {
         uri: config.url,
+        auth: {
+            username: config.username,
+            password: config.password,
+        },
         json: true,
     };
 
@@ -132,27 +137,21 @@ const downloadFile = (configuration) => {
     const { remoteFile, localFile } = configuration;
 
     return new Promise((resolve, reject) => {
-        // const req = request({
-        //     method: 'GET',
-        //     uri: remoteFile,
-        //     auth: {
-        //         username: 'fette',
-        //         password: 'asdf',
-        //         sendImmediately: false,
-        //     },
-        // }, (error, response, body) => {
-        //     console.log('error:', error); // Print the error if one occurred
-        //     console.log('statusCode:', response && response.statusCode);
-        //     console.log('body:', body); // Print the HTML for the Google homepage.
-        // });
-
         const req = request({
             method: 'GET',
             uri: remoteFile,
+            auth: {
+                username: config.username,
+                password: config.password,
+            },
         });
 
-        const out = fs.createWriteStream(localFile);
-        req.pipe(out);
+        req.on('response', (response) => {
+            if (response.statusCode !== 404) {
+                const out = fs.createWriteStream(localFile);
+                req.pipe(out);
+            }
+        });
 
         req.on('end', () => resolve());
 
@@ -163,7 +162,6 @@ const downloadFile = (configuration) => {
 // Download only new content
 const filterOutExistingFiles = (data) => {
     const allFiles = [];
-    const dataLength = data.length;
     const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
 
     fs.readdirSync(dataStoringPath).forEach((file) => {
@@ -174,22 +172,22 @@ const filterOutExistingFiles = (data) => {
     });
 
     data.map((remoteFileSource) => {
-        const remoteFile = remoteFileSource.url.split('/').pop().split('#')[0].split('?')[0];
+        const newFileName = getFileName(remoteFileSource.url);
 
-        if (existingFiles.find(existingFile => existingFile === remoteFile)) {
+        if (existingFiles.find(existingFile => existingFile === newFileName)) {
             return true;
         }
 
         return downloadFile({
             remoteFile: remoteFileSource.url,
-            localFile: dataStoringPath + remoteFile,
+            localFile: dataStoringPath + newFileName,
         }).then(() => {
             const storedData = {
-                url: dataStoringPath + remoteFile,
+                url: dataStoringPath + newFileName,
             };
             allFiles.push(storedData);
 
-            if (dataLength === allFiles.length) {
+            if (data.length === allFiles.length) {
                 mainWindow.send(STORED_DATA, allFiles);
             }
         }).catch(() => {
@@ -201,6 +199,10 @@ const filterOutExistingFiles = (data) => {
 ipcMain.on(NEW_CONTENT_DOWNLOAD, () => {
     const options = {
         uri: config.url,
+        auth: {
+            username: config.username,
+            password: config.password,
+        },
         json: true,
     };
 

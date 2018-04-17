@@ -6,7 +6,7 @@ import Model from './components/Model/';
 import Input from './components/Input/';
 import Alert from './components/Alert/';
 import Button from './components/Button/';
-import ImageContainer from './components/ImageContainer/';
+import RenderFiles from './components/RenderFiles/';
 // Configuration
 import { username, password } from './config/';
 // Constants
@@ -201,7 +201,7 @@ class App extends Component {
                     : null
                 }
                 {this.state.storedData.length > 0
-                    ? <ImageContainer data={this.state.storedData} />
+                    ? <RenderFiles data={this.state.storedData} />
                     : <h3 className="text-center">{MESSAGE_NO_CONTENT}</h3>
                 }
                 {this.state.acceptContentDownload ?
