@@ -15,7 +15,7 @@ class RenderFiles extends Component {
         let key = 0;
         const images = this.props.data.filter((image) => {
             const fileExtension = getFileExtension(getFileName(image.url));
-            return fileExtension === 'jpg' || fileExtension === 'jepg' || fileExtension === 'png';
+            return fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png';
         });
 
         return images.map((image) => {
