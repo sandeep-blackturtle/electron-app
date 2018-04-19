@@ -1,4 +1,5 @@
 // NPM Modules
+import axios from 'axios';
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 // Components
@@ -8,13 +9,15 @@ import Alert from './components/Alert/';
 import Button from './components/Button/';
 import RenderFiles from './components/RenderFiles/';
 // Configuration
-import { username, password } from './config/';
+import { url } from './config/';
 // Constants
 import {
     // Events
     MESSAGE,
     STORED_DATA,
+    LOGIN_SUCCESS,
     GET_STORED_DATA,
+    NEW_CONTENT_CHECK,
     NEW_CONTENT_DOWNLOAD,
     NEW_CONTENT_AVAILABLE,
     APP_UPDATE_PERMISSION,
@@ -25,6 +28,7 @@ import {
     STATUS_NEW_CONTENT_YES,
     // Messages
     MESSAGE_NO_CONTENT,
+    MESSAGE_LOGIN_SUCCESS,
     MESSAGE_UPDATE_AVAILABLE,
     MESSAGE_INVALID_CREDENCIALS,
     MESSAGE_NEW_CONTENT_AVAILABLE,
@@ -45,6 +49,7 @@ class App extends Component {
             authStatus: null,
             newUpdate: false,
             newContent: null,
+            newContentCheck: false,
             acceptContentDownload: false,
         };
 
@@ -53,6 +58,7 @@ class App extends Component {
         this.handleAlertClose = this.handleAlertClose.bind(this);
         this.handleShowMessage = this.handleShowMessage.bind(this);
         this.handleGetStoredData = this.handleGetStoredData.bind(this);
+        this.handleNewContentCheck = this.handleNewContentCheck.bind(this);
         this.handleInputValueChange = this.handleInputValueChange.bind(this);
         this.handleUpdateDownloaded = this.handleUpdateDownloaded.bind(this);
         this.handleNewContentAvailable = this.handleNewContentAvailable.bind(this);
@@ -67,6 +73,7 @@ class App extends Component {
     componentDidMount() {
         ipcRenderer.on(MESSAGE, this.handleShowMessage);
         ipcRenderer.on(STORED_DATA, this.handleStoredData);
+        ipcRenderer.on(NEW_CONTENT_CHECK, this.handleNewContentCheck);
         ipcRenderer.on(NEW_CONTENT_AVAILABLE, this.handleNewContentAvailable);
         ipcRenderer.on(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
 
@@ -76,6 +83,7 @@ class App extends Component {
     componentWillUnmount() {
         ipcRenderer.removeListener(MESSAGE, this.handleShowMessage);
         ipcRenderer.removeListener(STORED_DATA, this.handleStoredData);
+        ipcRenderer.removeListener(NEW_CONTENT_CHECK, this.handleNewContentCheck);
         ipcRenderer.removeListener(NEW_CONTENT_AVAILABLE, this.handleNewContentAvailable);
         ipcRenderer.removeListener(UPDATE_DOWNLOAD_COMPLETE, this.handleUpdateDownloaded);
     }
@@ -87,6 +95,10 @@ class App extends Component {
 
     handleGetStoredData() {
         ipcRenderer.send(GET_STORED_DATA);
+    }
+
+    handleNewContentCheck() {
+        this.setState({ newContentCheck: true });
     }
 
     handleNewContentAvailable(event, status) {
@@ -102,10 +114,17 @@ class App extends Component {
     }
 
     handleAccepNewContentDownload(status) {
+        const credentials = {
+            username: this.state.username,
+            password: this.state.password,
+        };
+
         this.setState({
             newContent: false,
             acceptContentDownload: status,
         });
+
+        ipcRenderer.send(NEW_CONTENT_DOWNLOAD, credentials);
     }
 
     handleDeniedNewContentDownload(status) {
@@ -118,21 +137,32 @@ class App extends Component {
         });
     }
 
+    // event with wrong credentials able to access the data, not sure why
     handleValidateCredencials() {
-        if (username !== this.state.username || password !== this.state.password) {
-            this.setState({ authStatus: MESSAGE_INVALID_CREDENCIALS });
-        } else {
-            this.setState({ authStatus: MESSAGE_NEW_CONTENT_WILL_DOWNLOAD });
+        axios.get(url, {
+            auth: {
+                username: this.state.username,
+                password: this.state.password,
+            },
+        })
+        .then((res) => {
+            const data = res.data.data;
+            this.setState({ authStatus: MESSAGE_LOGIN_SUCCESS });
 
             setTimeout(() => {
-                this.setState({ acceptContentDownload: false });
-                ipcRenderer.send(NEW_CONTENT_DOWNLOAD);
+                this.setState({ newContentCheck: false });
+                ipcRenderer.send(LOGIN_SUCCESS, data);
             }, 2500);
-        }
+        })
+        .catch(() => {
+            this.setState({
+                authStatus: MESSAGE_INVALID_CREDENCIALS,
+            });
+        });
     }
 
     handleModelClose() {
-        this.setState({ acceptContentDownload: false });
+        this.setState({ newContentCheck: false });
     }
 
     handleAlertClose(status) {
@@ -170,7 +200,7 @@ class App extends Component {
                     <Button
                         className="update-button"
                         value={'Download'}
-                        onClick={() => this.handleAccepNewContentDownload(STATUS_NEW_CONTENT_YES)}
+                        onClick={() => this.handleAccepNewContentDownload(STATUS_CLOSE_ALERT)}
                     />
                 </Alert>
             );
@@ -204,7 +234,7 @@ class App extends Component {
                     ? <RenderFiles data={this.state.storedData} />
                     : <h3 className="text-center">{MESSAGE_NO_CONTENT}</h3>
                 }
-                {this.state.acceptContentDownload ?
+                {this.state.newContentCheck ?
                     <Model
                         title={this.state.authStatus}
                         titleClassName={this.state.authStatus === MESSAGE_INVALID_CREDENCIALS ? 'error' : 'success'}
@@ -223,7 +253,13 @@ class App extends Component {
                             value={this.state.password}
                             onChange={this.handleInputValueChange}
                         />
-                        <Button type={'button'} className="submit-button" value={'Submit'} onClick={this.handleValidateCredencials} />
+                        <Button
+                            type={'button'}
+                            className="submit-button"
+                            value={'Submit'}
+                            onClick={this.handleValidateCredencials}
+                            disabled={!this.state.username || !this.state.password}
+                        />
                         <Button type={'button'} className="model-close" value={'X'} onClick={this.handleModelClose} />
                     </Model>
                     : null

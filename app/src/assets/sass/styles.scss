@@ -209,6 +209,11 @@ body {
     button:hover {
         background-color: $darkGreen;
     }
+
+    button:disabled {
+        background-color: $darkGray;
+        cursor: not-allowed;
+    }
 }
 
 .update-button {

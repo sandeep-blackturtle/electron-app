@@ -3,6 +3,8 @@ module.exports = {
     ERROR: 'error',
     MESSAGE: 'message',
 
+    LOGIN_SUCCESS: 'login-success',
+
     APP_IS_OFFLINE: 'app-is-offline',
 
     STORE_DATA: 'store-data',
@@ -28,6 +30,7 @@ module.exports = {
     STATUS_NEW_CONTENT_YES: 1,
 
     // Messages
+    MESSAGE_LOGIN_SUCCESS: 'Login success',
     MESSAGE_UPDATE_AVAILABLE: 'Update available',
     MESSAGE_INVALID_CREDENCIALS: 'Invalid credencials',
     MESSAGE_CHECK_FOR_NEW_CONTENT: 'Check for new content',

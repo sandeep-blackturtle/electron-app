@@ -16,8 +16,10 @@ const {
     MESSAGE,
     STORED_DATA,
     UPDATE_CHECK,
+    LOGIN_SUCCESS,
     GET_STORED_DATA,
     UPDATE_AVAILABLE,
+    NEW_CONTENT_CHECK,
     UPDATE_NOT_AVAILABLE,
     NEW_CONTENT_DOWNLOAD,
     NEW_CONTENT_AVAILABLE,
@@ -66,7 +68,7 @@ const createWindow = () => {
     );
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
@@ -86,63 +88,22 @@ const sendStatusToWindow = (data) => {
     }
 };
 
-// Check the files are exist or not
-const checkIsFilesExist = (data) => {
-    const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
-
-    data.map((remoteFileSource) => {
-        const remoteFile = getFileName(remoteFileSource.url);
-
-        if (existingFiles.find(existingFile => existingFile === remoteFile)) {
-            return mainWindow.send(NEW_CONTENT_AVAILABLE, STATUS_NEW_CONTENT_NO);
-        }
-
-        return mainWindow.send(NEW_CONTENT_AVAILABLE, STATUS_NEW_CONTENT_YES);
-    });
-};
-
 // Check for new content
 const checkForNewContent = () => {
-    const options = {
-        uri: config.url,
-        auth: {
-            username: config.username,
-            password: config.password,
-        },
-        json: true,
-    };
-
-    rp(options).then((response) => {
-        checkIsFilesExist(response.data);
-    }).catch((error) => {
-        mainWindow.sendStatusToWindow(MESSAGE, error); // return error
-    });
+    mainWindow.send(NEW_CONTENT_CHECK);
 };
-
-ipcMain.on(GET_STORED_DATA, () => {
-    const getStoredFiles = [];
-
-    fs.readdirSync(dataStoringPath).forEach((file) => {
-        const storedFile = {
-            url: dataStoringPath + file,
-        };
-        getStoredFiles.push(storedFile);
-    });
-
-    mainWindow.send(STORED_DATA, getStoredFiles);
-});
 
 // Download file and store locally
 const downloadFile = (configuration) => {
-    const { remoteFile, localFile } = configuration;
+    const { remoteFile, localFile, credentials } = configuration;
 
     return new Promise((resolve, reject) => {
         const req = request({
             method: 'GET',
             uri: remoteFile,
             auth: {
-                username: config.username,
-                password: config.password,
+                username: credentials.username,
+                password: credentials.password,
             },
         });
 
@@ -160,7 +121,7 @@ const downloadFile = (configuration) => {
 };
 
 // Download only new content
-const filterOutExistingFiles = (data) => {
+const filterOutExistingFiles = (data, credentials) => {
     const allFiles = [];
     const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
 
@@ -181,6 +142,7 @@ const filterOutExistingFiles = (data) => {
         return downloadFile({
             remoteFile: remoteFileSource.url,
             localFile: dataStoringPath + newFileName,
+            credentials,
         }).then(() => {
             const storedData = {
                 url: dataStoringPath + newFileName,
@@ -196,18 +158,46 @@ const filterOutExistingFiles = (data) => {
     });
 };
 
-ipcMain.on(NEW_CONTENT_DOWNLOAD, () => {
+ipcMain.on(GET_STORED_DATA, () => {
+    const getStoredFiles = [];
+
+    fs.readdirSync(dataStoringPath).forEach((file) => {
+        const storedFile = {
+            url: dataStoringPath + file,
+        };
+        getStoredFiles.push(storedFile);
+    });
+
+    mainWindow.send(STORED_DATA, getStoredFiles);
+});
+
+// Check the files are exist or not
+ipcMain.on(LOGIN_SUCCESS, (event, data) => {
+    const existingFiles = fs.readdirSync(dataStoringPath).map(file => file);
+
+    data.map((remoteFileSource) => {
+        const remoteFile = getFileName(remoteFileSource.url);
+
+        if (existingFiles.find(existingFile => existingFile === remoteFile)) {
+            return mainWindow.send(NEW_CONTENT_AVAILABLE, STATUS_NEW_CONTENT_NO);
+        }
+
+        return mainWindow.send(NEW_CONTENT_AVAILABLE, STATUS_NEW_CONTENT_YES);
+    });
+});
+
+ipcMain.on(NEW_CONTENT_DOWNLOAD, (event, credentials) => {
     const options = {
         uri: config.url,
         auth: {
-            username: config.username,
-            password: config.password,
+            username: credentials.username,
+            password: credentials.password,
         },
         json: true,
     };
 
     rp(options).then((response) => {
-        filterOutExistingFiles(response.data);
+        filterOutExistingFiles(response.data, credentials);
     }).catch((error) => {
         mainWindow.sendStatusToWindow(MESSAGE, error); // return error
     });
