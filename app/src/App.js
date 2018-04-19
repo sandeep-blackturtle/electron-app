@@ -33,7 +33,6 @@ import {
     MESSAGE_INVALID_CREDENCIALS,
     MESSAGE_NEW_CONTENT_AVAILABLE,
     MESSAGE_NEW_CONTENT_NOT_AVAILABLE,
-    MESSAGE_NEW_CONTENT_WILL_DOWNLOAD,
 } from './utils/constants';
 
 class App extends Component {
@@ -137,7 +136,6 @@ class App extends Component {
         });
     }
 
-    // event with wrong credentials able to access the data, not sure why
     handleValidateCredencials() {
         axios.get(url, {
             auth: {
